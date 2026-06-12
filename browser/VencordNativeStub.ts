@@ -70,6 +70,11 @@ window.VencordNative = {
         onRendererCssUpdate: NOOP,
     },
 
+    xdgGlobalKeybinds: {
+        addActivateListener: NOOP,
+        removeActivateListener: NOOP,
+    },
+
     updater: {
         getRepo: async () => ({ ok: true, value: "https://github.com/Vendicated/Vencord" }),
         getUpdates: async () => ({ ok: true, value: [] }),

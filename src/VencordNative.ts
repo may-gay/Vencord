@@ -20,8 +20,12 @@ export function sendSync<T = any>(event: IpcEvents, ...args: any[]) {
     return ipcRenderer.sendSync(event, ...args) as T;
 }
 
+type XdgGlobalKeybindListener = (shortcutId: string) => void;
+type IpcRendererListener = Parameters<typeof ipcRenderer.on>[1];
+
 const PluginHelpers = {} as Record<string, Record<string, (...args: any[]) => Promise<any>>>;
 const pluginIpcMap = sendSync<PluginIpcMappings>(IpcEvents.GET_PLUGIN_IPC_METHOD_MAP);
+const xdgGlobalKeybindListeners = new Map<XdgGlobalKeybindListener, IpcRendererListener>();
 
 for (const [plugin, methods] of Object.entries(pluginIpcMap)) {
     const map = PluginHelpers[plugin] = {};
@@ -86,6 +90,21 @@ export default {
 
             ipcRenderer.on(IpcEvents.RENDERER_CSS_UPDATE, (_e, newCss: string) => cb(newCss));
         }
+    },
+
+    xdgGlobalKeybinds: {
+        addActivateListener(listener: XdgGlobalKeybindListener) {
+            const wrapped: IpcRendererListener = (_event, shortcutId: string) => listener(shortcutId);
+            xdgGlobalKeybindListeners.set(listener, wrapped);
+            ipcRenderer.on(IpcEvents.XDG_GLOBAL_KEYBIND_ACTIVATED, wrapped);
+        },
+        removeActivateListener(listener: XdgGlobalKeybindListener) {
+            const wrapped = xdgGlobalKeybindListeners.get(listener);
+            if (!wrapped) return;
+
+            ipcRenderer.off(IpcEvents.XDG_GLOBAL_KEYBIND_ACTIVATED, wrapped);
+            xdgGlobalKeybindListeners.delete(listener);
+        },
     },
 
     csp: {

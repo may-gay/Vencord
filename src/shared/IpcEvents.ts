@@ -54,5 +54,7 @@ export const enum IpcEvents {
     RENDERER_CSS_UPDATE = "VencordRendererCssUpdate",
     PRELOAD_GET_RENDERER_JS = "VencordPreloadGetRendererJs",
 
+    XDG_GLOBAL_KEYBIND_ACTIVATED = "VencordXdgGlobalKeybindActivated",
+
     SUPPORTS_WINDOWS_MATERIAL = "VencordSupportsWindowsMaterial",
 }
